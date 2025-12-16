@@ -12,7 +12,7 @@ from datetime import datetime
 
 # 配置
 SERVER_URL = os.getenv('MONITOR_SERVER', 'http://your-server.com:5000')
-CHECK_SCRIPT = os.getenv('CHECK_SCRIPT', './check.sh')
+CHECK_SCRIPT = os.getenv('CHECK_SCRIPT', 'check.sh')
 CHECK_ARGS = os.getenv('CHECK_ARGS', '')  # 默认检测IPv4和IPv6
 
 def get_vps_name():
