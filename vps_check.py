@@ -14,6 +14,7 @@ from datetime import datetime
 SERVER_URL = os.getenv('MONITOR_SERVER', 'http://your-server.com:5000')
 CHECK_SCRIPT = os.getenv('CHECK_SCRIPT', 'check.sh')
 CHECK_REGION = os.getenv('CHECK_REGION', '66')  # 默认全部平台检测
+CHECK_TIMEOUT = int(os.getenv('CHECK_TIMEOUT', '300'))  # 默认5分钟超时
 CHECK_ARGS = os.getenv('CHECK_ARGS', f'-R {CHECK_REGION}')
 
 def get_vps_name():
@@ -44,11 +45,23 @@ def run_checks():
     
     try:
         cmd = f"bash {CHECK_SCRIPT} {CHECK_ARGS}"
-        output = subprocess.run(cmd, shell=True, capture_output=True, timeout=600, text=True)
+        output = subprocess.run(cmd, shell=True, capture_output=True, timeout=CHECK_TIMEOUT, text=True)
         lines = output.stdout.split('\n')
         
-        # 动态解析所有服务检测结果
+        # 分离IPv4和IPv6结果
+        current_section = None
+        ipv4_results = {}
+        ipv6_results = {}
+        
         for line in lines:
+            # 检测IPv4/IPv6区段
+            if 'IPv4' in line and '测试' in line:
+                current_section = 'ipv4'
+                continue
+            elif 'IPv6' in line and '测试' in line:
+                current_section = 'ipv6'
+                continue
+            
             # 匹配形如 "服务名: 状态" 的行
             match = re.match(r'^\s*(.+?):\s+(.+)$', line)
             if match:
@@ -60,8 +73,19 @@ def run_checks():
                     continue
                 
                 # 只保留包含状态信息的行
-                if any(keyword in status_info for keyword in ['Yes', 'No', 'Failed', 'Only']):
-                    result['services'][service_name] = parse_check_result(status_info)
+                if any(keyword in status_info for keyword in ['Yes', 'No', 'Failed', 'Only', 'Supported']):
+                    parsed = parse_check_result(status_info)
+                    if current_section == 'ipv4':
+                        ipv4_results[service_name] = parsed
+                    elif current_section == 'ipv6':
+                        ipv6_results[service_name] = parsed
+        
+        # 同时展示IPv4和IPv6结果
+        for service, data in ipv4_results.items():
+            result['services'][f"{service} (IPv4)"] = data
+        
+        for service, data in ipv6_results.items():
+            result['services'][f"{service} (IPv6)"] = data
             
     except Exception as e:
         result['error'] = str(e)
