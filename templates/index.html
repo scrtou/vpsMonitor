@@ -161,6 +161,12 @@
             border: 1px solid var(--warning);
         }
         
+        .status-unknown {
+            background: rgba(136, 146, 176, 0.1);
+            color: var(--text-dim);
+            border: 1px solid rgba(136, 146, 176, 0.3);
+        }
+        
         .refresh-btn {
             position: fixed;
             bottom: 2rem;
@@ -237,11 +243,25 @@
                 return;
             }
             
+            // 收集所有服务名称并排序
+            const allServices = new Set();
+            data.forEach(vps => {
+                Object.keys(vps.services || {}).forEach(service => allServices.add(service));
+            });
+            
+            const sortedServices = Array.from(allServices).sort((a, b) => {
+                const aIsV4 = a.includes('(IPv4)');
+                const bIsV4 = b.includes('(IPv4)');
+                if (aIsV4 && !bIsV4) return -1;
+                if (!aIsV4 && bIsV4) return 1;
+                return a.localeCompare(b);
+            });
+            
+            const ipv4Services = sortedServices.filter(s => s.includes('(IPv4)'));
+            const ipv6Services = sortedServices.filter(s => s.includes('(IPv6)'));
+            
             const html = data.map(vps => {
-                // 分离IPv4和IPv6结果
-                const services = Object.entries(vps.services || {});
-                const ipv4Services = services.filter(([name]) => name.includes('(IPv4)'));
-                const ipv6Services = services.filter(([name]) => name.includes('(IPv6)'));
+                const vpsServices = vps.services || {};
                 
                 return `
                 <div class="card">
@@ -253,24 +273,30 @@
                     ${ipv4Services.length > 0 ? `
                     <div class="section">
                         <div class="section-title">📡 IPv4 检测结果</div>
-                        ${ipv4Services.map(([service, info]) => `
+                        ${ipv4Services.map(service => {
+                            const info = vpsServices[service];
+                            return `
                             <div class="service-item">
                                 <span class="service-name">${service}</span>
-                                <span class="status-badge status-${info.status}">${info.status}</span>
+                                ${info ? `<span class="status-badge status-${info.status}">${info.status}</span>` : '<span class="status-badge status-unknown">-</span>'}
                             </div>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                     ` : ''}
                     
                     ${ipv6Services.length > 0 ? `
                     <div class="section">
                         <div class="section-title">📡 IPv6 检测结果</div>
-                        ${ipv6Services.map(([service, info]) => `
+                        ${ipv6Services.map(service => {
+                            const info = vpsServices[service];
+                            return `
                             <div class="service-item">
                                 <span class="service-name">${service}</span>
-                                <span class="status-badge status-${info.status}">${info.status}</span>
+                                ${info ? `<span class="status-badge status-${info.status}">${info.status}</span>` : '<span class="status-badge status-unknown">-</span>'}
                             </div>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                     ` : ''}
                 </div>
