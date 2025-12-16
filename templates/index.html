@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPS 解锁监控</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #151b3d;
+            --bg-card: #1a2142;
+            --accent: #00d9ff;
+            --accent-glow: rgba(0, 217, 255, 0.3);
+            --success: #00ff88;
+            --error: #ff3366;
+            --warning: #ffaa00;
+            --text: #e8eaf6;
+            --text-dim: #8892b0;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #1a1f3a 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.6s ease;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 40px var(--accent-glow);
+        }
+        
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(0, 217, 255, 0.1);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease;
+            animation-fill-mode: both;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 32px var(--accent-glow);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(0, 217, 255, 0.2);
+        }
+        
+        .vps-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .timestamp {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .service-item:hover {
+            background: rgba(0, 217, 255, 0.05);
+        }
+        
+        .service-name {
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+        
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-unlocked {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .status-locked {
+            background: rgba(255, 51, 102, 0.2);
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
+        
+        .status-error {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+        
+        .refresh-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
+            color: var(--bg-primary);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 20px var(--accent-glow);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .refresh-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 30px var(--accent-glow);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            font-size: 1.2rem;
+            color: var(--text-dim);
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>VPS 解锁监控</h1>
+            <p class="subtitle">实时监控流媒体与AI服务解锁状态</p>
+        </header>
+        
+        <div id="content" class="grid">
+            <div class="loading">加载中...</div>
+        </div>
+    </div>
+    
+    <button class="refresh-btn" onclick="loadData()">🔄 刷新数据</button>
+    
+    <script>
+        async function loadData() {
+            try {
+                const response = await fetch('/api/latest');
+                const data = await response.json();
+                renderData(data);
+            } catch (error) {
+                document.getElementById('content').innerHTML = '<div class="loading">加载失败，请稍后重试</div>';
+            }
+        }
+        
+        function renderData(data) {
+            if (!data || data.length === 0) {
+                document.getElementById('content').innerHTML = '<div class="loading">暂无数据</div>';
+                return;
+            }
+            
+            const html = data.map(vps => `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="vps-name">${vps.name}</div>
+                        <div class="timestamp">${new Date(vps.timestamp).toLocaleString('zh-CN')}</div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">🎬 流媒体服务</div>
+                        ${Object.entries(vps.streaming || {}).map(([service, info]) => `
+                            <div class="service-item">
+                                <span class="service-name">${service}</span>
+                                <span class="status-badge status-${info.status}">${info.status}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">🤖 AI 服务</div>
+                        ${Object.entries(vps.ai || {}).map(([service, info]) => `
+                            <div class="service-item">
+                                <span class="service-name">${service}</span>
+                                <span class="status-badge status-${info.status}">${info.status}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('content').innerHTML = html;
+        }
+        
+        // 初始加载
+        loadData();
+        
+        // 每5分钟自动刷新
+        setInterval(loadData, 300000);
+    </script>
+</body>
+</html>
+
