@@ -13,7 +13,8 @@ from datetime import datetime
 # 配置
 SERVER_URL = os.getenv('MONITOR_SERVER', 'http://your-server.com:5000')
 CHECK_SCRIPT = os.getenv('CHECK_SCRIPT', 'check.sh')
-CHECK_ARGS = os.getenv('CHECK_ARGS', '')  # 默认检测IPv4和IPv6
+CHECK_REGION = os.getenv('CHECK_REGION', '66')  # 默认全部平台检测
+CHECK_ARGS = os.getenv('CHECK_ARGS', f'-R {CHECK_REGION}')
 
 def get_vps_name():
     try:
@@ -43,7 +44,7 @@ def run_checks():
     
     try:
         cmd = f"bash {CHECK_SCRIPT} {CHECK_ARGS}"
-        output = subprocess.run(cmd, shell=True, capture_output=True, timeout=120, text=True)
+        output = subprocess.run(cmd, shell=True, capture_output=True, timeout=600, text=True)
         lines = output.stdout.split('\n')
         
         # 动态解析所有服务检测结果
@@ -70,9 +71,20 @@ def run_checks():
 def upload_result(data):
     """上报结果到中心服务器"""
     try:
-        cmd = f"curl -X POST '{SERVER_URL}/api/report' -H 'Content-Type: application/json' -d '{json.dumps(data)}' --max-time 10"
-        subprocess.run(cmd, shell=True, timeout=15)
-        print(f"✓ 数据已上报到 {SERVER_URL}")
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(data, f)
+            temp_file = f.name
+        
+        cmd = f"curl -X POST '{SERVER_URL}/api/report' -H 'Content-Type: application/json' -d @{temp_file} --max-time 10"
+        result = subprocess.run(cmd, shell=True, capture_output=True, timeout=15, text=True)
+        
+        os.unlink(temp_file)
+        
+        if result.returncode == 0:
+            print(f"✓ 数据已上报到 {SERVER_URL}")
+        else:
+            print(f"✗ 上报失败: {result.stderr}")
     except Exception as e:
         print(f"✗ 上报失败: {e}")
 
