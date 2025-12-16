@@ -237,24 +237,45 @@
                 return;
             }
             
-            const html = data.map(vps => `
+            const html = data.map(vps => {
+                // 分离IPv4和IPv6结果
+                const services = Object.entries(vps.services || {});
+                const ipv4Services = services.filter(([name]) => name.includes('(IPv4)'));
+                const ipv6Services = services.filter(([name]) => name.includes('(IPv6)'));
+                
+                return `
                 <div class="card">
                     <div class="card-header">
                         <div class="vps-name">${vps.name}</div>
                         <div class="timestamp">${new Date(vps.timestamp).toLocaleString('zh-CN')}</div>
                     </div>
                     
+                    ${ipv4Services.length > 0 ? `
                     <div class="section">
-                        <div class="section-title">📊 检测结果</div>
-                        ${Object.entries(vps.services || {}).map(([service, info]) => `
+                        <div class="section-title">📡 IPv4 检测结果</div>
+                        ${ipv4Services.map(([service, info]) => `
                             <div class="service-item">
                                 <span class="service-name">${service}</span>
                                 <span class="status-badge status-${info.status}">${info.status}</span>
                             </div>
                         `).join('')}
                     </div>
+                    ` : ''}
+                    
+                    ${ipv6Services.length > 0 ? `
+                    <div class="section">
+                        <div class="section-title">📡 IPv6 检测结果</div>
+                        ${ipv6Services.map(([service, info]) => `
+                            <div class="service-item">
+                                <span class="service-name">${service}</span>
+                                <span class="status-badge status-${info.status}">${info.status}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
                 </div>
-            `).join('');
+                `;
+            }).join('');
             
             document.getElementById('content').innerHTML = html;
         }

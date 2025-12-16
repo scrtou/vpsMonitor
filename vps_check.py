@@ -39,7 +39,7 @@ def run_checks():
     """运行check.sh并解析所有结果"""
     result = {
         'name': VPS_NAME,
-        'timestamp': datetime.now().isoformat(),
+        'timestamp': datetime.utcnow().isoformat() + 'Z',
         'services': {}
     }
     
