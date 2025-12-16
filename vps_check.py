@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 """
-VPS本地检测脚本 - 部署到每台VPS上
+VPS本地检测脚本 - 调用check.sh并解析结果
 在Nezha面板配置定时任务运行此脚本
 """
 import json
 import subprocess
-import sys
+import re
 import os
 import socket
 from datetime import datetime
 
-# 配置：中心服务器地址
+# 配置
 SERVER_URL = os.getenv('MONITOR_SERVER', 'http://your-server.com:5000')
+CHECK_SCRIPT = os.getenv('CHECK_SCRIPT', './check.sh')
+CHECK_ARGS = os.getenv('CHECK_ARGS', '')  # 默认检测IPv4和IPv6
 
-# 自动获取VPS名称（使用主机名）
 def get_vps_name():
     try:
         return socket.gethostname()
@@ -22,48 +23,47 @@ def get_vps_name():
 
 VPS_NAME = get_vps_name()
 
-SERVICES = {
-    'streaming': {
-        'netflix': 'https://www.netflix.com',
-        'disney': 'https://www.disneyplus.com',
-        'youtube': 'https://www.youtube.com/premium',
-        'hbo': 'https://www.hbomax.com'
-    },
-    'ai': {
-        'chatgpt': 'https://chat.openai.com',
-        'claude': 'https://claude.ai',
-        'gemini': 'https://gemini.google.com'
-    }
-}
-
-def check_url(url):
-    """检测URL访问状态"""
-    try:
-        cmd = f"curl -sL -w '%{{http_code}}' '{url}' -o /dev/null --max-time 10"
-        result = subprocess.run(cmd, shell=True, capture_output=True, timeout=15)
-        code = result.stdout.decode().strip()
-        return code
-    except:
-        return 'timeout'
+def parse_check_result(line):
+    """解析check.sh的输出行"""
+    if 'Yes' in line:
+        return {'status': 'unlocked', 'info': line.strip()}
+    elif 'No' in line:
+        return {'status': 'locked', 'info': line.strip()}
+    elif 'Failed' in line:
+        return {'status': 'error', 'info': line.strip()}
+    return {'status': 'unknown', 'info': line.strip()}
 
 def run_checks():
-    """执行所有检测"""
+    """运行check.sh并解析所有结果"""
     result = {
         'name': VPS_NAME,
         'timestamp': datetime.now().isoformat(),
-        'streaming': {},
-        'ai': {}
+        'services': {}
     }
     
-    for service, url in SERVICES['streaming'].items():
-        code = check_url(url)
-        status = 'unlocked' if code in ['200', '301', '302'] else 'locked' if code != 'timeout' else 'error'
-        result['streaming'][service] = {'status': status, 'code': code}
-    
-    for service, url in SERVICES['ai'].items():
-        code = check_url(url)
-        status = 'unlocked' if code not in ['403', '451', 'timeout'] else 'locked' if code != 'timeout' else 'error'
-        result['ai'][service] = {'status': status, 'code': code}
+    try:
+        cmd = f"bash {CHECK_SCRIPT} {CHECK_ARGS}"
+        output = subprocess.run(cmd, shell=True, capture_output=True, timeout=120, text=True)
+        lines = output.stdout.split('\n')
+        
+        # 动态解析所有服务检测结果
+        for line in lines:
+            # 匹配形如 "服务名: 状态" 的行
+            match = re.match(r'^\s*(.+?):\s+(.+)$', line)
+            if match:
+                service_name = match.group(1).strip()
+                status_info = match.group(2).strip()
+                
+                # 过滤掉分隔线和标题行
+                if '=' in service_name or '[' in service_name:
+                    continue
+                
+                # 只保留包含状态信息的行
+                if any(keyword in status_info for keyword in ['Yes', 'No', 'Failed', 'Only']):
+                    result['services'][service_name] = parse_check_result(status_info)
+            
+    except Exception as e:
+        result['error'] = str(e)
     
     return result
 

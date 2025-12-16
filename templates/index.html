@@ -245,18 +245,8 @@
                     </div>
                     
                     <div class="section">
-                        <div class="section-title">🎬 流媒体服务</div>
-                        ${Object.entries(vps.streaming || {}).map(([service, info]) => `
-                            <div class="service-item">
-                                <span class="service-name">${service}</span>
-                                <span class="status-badge status-${info.status}">${info.status}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                    
-                    <div class="section">
-                        <div class="section-title">🤖 AI 服务</div>
-                        ${Object.entries(vps.ai || {}).map(([service, info]) => `
+                        <div class="section-title">📊 检测结果</div>
+                        ${Object.entries(vps.services || {}).map(([service, info]) => `
                             <div class="service-item">
                                 <span class="service-name">${service}</span>
                                 <span class="status-badge status-${info.status}">${info.status}</span>
