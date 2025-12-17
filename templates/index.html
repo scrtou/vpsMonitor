@@ -59,70 +59,83 @@
         }
         
         .table-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1.2rem;
+            padding-left: 0.5rem;
+            border-left: 4px solid var(--accent);
         }
         
         .table-wrapper {
             overflow-x: auto;
-            border-radius: 8px;
-            border: 1px solid #e8e8e8;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            background: var(--bg-card);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
         }
         
         .vps-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             background: var(--bg-card);
         }
         
         .vps-table th,
         .vps-table td {
-            padding: 0.75rem;
+            padding: 1rem 1.25rem;
             text-align: center;
-            border: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
         }
         
         .vps-table thead th {
-            background: var(--bg-secondary);
-            font-weight: 700;
+            background: linear-gradient(to bottom, #fafbfc, #f5f7fa);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text);
             position: sticky;
             top: 0;
             z-index: 10;
+            border-bottom: 2px solid #e8ecf1;
+        }
+        
+        .vps-table thead th:first-child {
+            border-top-left-radius: 12px;
+        }
+        
+        .vps-table thead th:last-child {
+            border-top-right-radius: 12px;
         }
         
         .service-col {
             text-align: left;
             min-width: 180px;
             font-weight: 600;
-            background: var(--bg-secondary);
+            background: linear-gradient(to bottom, #fafbfc, #f5f7fa);
             position: sticky;
             left: 0;
             z-index: 11;
+            border-right: 1px solid #e8ecf1;
         }
         
         .vps-col {
-            min-width: 150px;
+            min-width: 140px;
         }
         
         .vps-header {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 0.3rem;
         }
         
         .vps-name {
-            font-size: 1.1rem;
-            font-weight: 700;
+            font-size: 1rem;
+            font-weight: 600;
             color: var(--accent);
         }
         
         .vps-time {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-dim);
             font-family: 'JetBrains Mono', monospace;
         }
@@ -131,51 +144,80 @@
             font-weight: 500;
             text-align: left;
             padding-left: 1rem;
+            color: var(--text);
+            font-size: 0.9rem;
+            background: linear-gradient(to bottom, #fafbfc, #f5f7fa);
+            border-right: 1px solid #e8ecf1;
         }
         
         .status-cell {
             background: var(--bg-card);
         }
         
+        .vps-table tbody tr {
+            transition: all 0.2s ease;
+        }
+        
         .vps-table tbody tr:hover {
-            background: #fafafa;
+            background: #f8f9fb;
+            transform: scale(1.001);
         }
         
         .vps-table tbody tr:hover .service-name {
-            background: #fafafa;
+            background: #f8f9fb;
+        }
+        
+        .vps-table tbody tr:last-child td:first-child {
+            border-bottom-left-radius: 12px;
+        }
+        
+        .vps-table tbody tr:last-child td:last-child {
+            border-bottom-right-radius: 12px;
+        }
+        
+        .vps-table tbody tr:last-child td {
+            border-bottom: none;
         }
         
         .status-badge {
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.9rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
             font-weight: 600;
-            font-family: 'JetBrains Mono', monospace;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-family: 'Noto Sans SC', sans-serif;
+            text-transform: capitalize;
+            letter-spacing: 0.3px;
+            transition: all 0.2s ease;
+        }
+        
+        .status-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         .status-unlocked {
-            background: #f6ffed;
-            color: var(--success);
-            border: 1px solid #b7eb8f;
+            background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%);
+            color: #389e0d;
+            border: 1px solid #95de64;
         }
         
         .status-locked {
-            background: #fff1f0;
-            color: var(--error);
-            border: 1px solid #ffccc7;
+            background: linear-gradient(135deg, #fff1f0 0%, #ffccc7 100%);
+            color: #cf1322;
+            border: 1px solid #ffa39e;
         }
         
         .status-error {
-            background: #fffbe6;
-            color: var(--warning);
-            border: 1px solid #ffe58f;
+            background: linear-gradient(135deg, #fffbe6 0%, #fff1b8 100%);
+            color: #d48806;
+            border: 1px solid #ffd666;
         }
         
         .status-unknown {
-            background: #fafafa;
-            color: var(--text-dim);
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            color: #8c8c8c;
             border: 1px solid #d9d9d9;
         }
         
