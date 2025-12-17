@@ -23,14 +23,25 @@ def get_latest():
         config = load_config()
         vps_mappings = config.get('vps_mappings', {})
         
+        print(f"[DEBUG] 当前IP映射配置: {vps_mappings}")
+        
         for item in data:
             client_ip = item.get('ip', '')
             original_name = item.get('original_name', item.get('name', 'Unknown'))
+            
+            print(f"[DEBUG] VPS数据 - IP: {client_ip}, 原始名称: {original_name}, 当前名称: {item.get('name')}")
+            
             # 根据当前配置动态设置名称
-            item['name'] = vps_mappings.get(client_ip, original_name)
+            if client_ip and client_ip in vps_mappings:
+                item['name'] = vps_mappings[client_ip]
+                print(f"[DEBUG] 应用映射: {client_ip} -> {vps_mappings[client_ip]}")
+            else:
+                item['name'] = original_name
+                print(f"[DEBUG] 使用原始名称: {original_name}")
         
         return jsonify(data)
-    except:
+    except Exception as e:
+        print(f"[ERROR] 获取数据失败: {e}")
         return jsonify([])
 
 @app.route('/api/config', methods=['GET'])
