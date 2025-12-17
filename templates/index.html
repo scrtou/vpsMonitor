@@ -426,9 +426,15 @@
                                             <td class="service-name">${service.replace(' (IPv4)', '').replace(' (IPv6)', '')}</td>
                                             ${data.map(vps => {
                                                 const info = (vps.services || {})[service];
+                                                const statusIcons = {
+                                                    'unlocked': '✓',
+                                                    'locked': '✗',
+                                                    'error': '⚠',
+                                                    'unknown': '-'
+                                                };
                                                 return `
                                                     <td class="status-cell">
-                                                        ${info ? `<span class="status-badge status-${info.status}">${info.status}</span>` : '<span class="status-badge status-unknown">-</span>'}
+                                                        ${info ? `<span class="status-badge status-${info.status}">${statusIcons[info.status] || info.status}</span>` : '<span class="status-badge status-unknown">-</span>'}
                                                     </td>
                                                 `;
                                             }).join('')}
