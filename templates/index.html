@@ -354,10 +354,9 @@
     
     <div id="configModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">VPS IP 映射配置</div>
+            <div class="modal-header">VPS 名称配置</div>
             <div id="mappingsList"></div>
             <div style="margin-top: 1rem;">
-                <button class="btn" onclick="addMapping()">+ 添加映射</button>
                 <button class="btn" onclick="saveConfig()">保存</button>
                 <button class="btn btn-secondary" onclick="closeConfig()">取消</button>
             </div>
@@ -452,12 +451,19 @@
         }
         
         let currentMappings = {};
+        let currentVPSList = [];
         
         async function openConfig() {
             try {
-                const response = await fetch('/api/config');
-                const data = await response.json();
-                currentMappings = data.vps_mappings || {};
+                // 获取当前配置
+                const configResponse = await fetch('/api/config');
+                const configData = await configResponse.json();
+                currentMappings = configData.vps_mappings || {};
+                
+                // 获取当前所有 VPS
+                const vpsResponse = await fetch('/api/latest');
+                currentVPSList = await vpsResponse.json();
+                
                 renderMappings();
                 document.getElementById('configModal').classList.add('active');
             } catch (error) {
@@ -470,45 +476,42 @@
         }
         
         function renderMappings() {
-            const html = Object.entries(currentMappings).map(([ip, name]) => `
-                <div class="mapping-item">
-                    <input type="text" value="${ip}" placeholder="VPS IP 地址" data-type="ip" data-old-ip="${ip}">
-                    <input type="text" value="${name}" placeholder="VPS 名称" data-type="name">
-                    <button class="btn btn-secondary" onclick="removeMapping('${ip}')">删除</button>
-                </div>
-            `).join('');
-            document.getElementById('mappingsList').innerHTML = html;
-        }
-        
-        function addMapping() {
-            const container = document.getElementById('mappingsList');
-            const div = document.createElement('div');
-            div.className = 'mapping-item';
-            div.innerHTML = `
-                <input type="text" placeholder="VPS IP 地址" data-type="ip">
-                <input type="text" placeholder="VPS 名称" data-type="name">
-                <button class="btn btn-secondary" onclick="this.parentElement.remove()">删除</button>
-            `;
-            container.appendChild(div);
-        }
-        
-        function removeMapping(ip) {
-            delete currentMappings[ip];
-            renderMappings();
+            // 使用已上报的VPS数据建立一个IP到其完整数据的映射
+            const vpsDataMap = new Map(currentVPSList.map(vps => [vps.ip, vps]));
+            // 从配置中获取所有应该显示的IP地址
+            const configuredIPs = Object.keys(currentMappings);
+
+            const html = configuredIPs.map(ip => {
+                const vps = vpsDataMap.get(ip);
+                // 如果VPS已上报，显示其原始名称；否则提示“尚未上报”
+                const originalName = vps ? (vps.original_name || vps.name) : '(尚未上报)';
+                const displayName = currentMappings[ip] || '';
+                
+                return `
+                    <div class="mapping-item">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.25rem;">
+                            <input type="text" value="${ip}" placeholder="IP 地址" readonly style="background: #f5f5f5; width: 100%;">
+                            <div style="font-size: 0.8rem; color: #8c8c8c; padding-left: 0.5rem;">原始名称: ${originalName}</div>
+                        </div>
+                        <input type="text" value="${displayName}" placeholder="显示名称" data-type="name" data-ip="${ip}" data-original="${originalName}">
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('mappingsList').innerHTML = html || '<div style="color: #8c8c8c; padding: 1rem;">暂无已配置的 VPS。请手动编辑 config.json 添加。</div>';
         }
         
         async function saveConfig() {
-            const items = document.querySelectorAll('.mapping-item');
+            const items = document.querySelectorAll('.mapping-item input[data-type="name"]');
             const newMappings = {};
             
-            items.forEach(item => {
-                const ipInput = item.querySelector('[data-type="ip"]');
-                const nameInput = item.querySelector('[data-type="name"]');
-                const ip = ipInput.value.trim();
-                const name = nameInput.value.trim();
+            items.forEach(input => {
+                const ip = input.getAttribute('data-ip');
+                const originalName = input.getAttribute('data-original');
+                const displayName = input.value.trim();
                 
-                if (ip && name) {
-                    newMappings[ip] = name;
+                if (displayName && ip) {
+                    newMappings[ip] = displayName;
                 }
             });
             

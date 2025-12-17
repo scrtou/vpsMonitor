@@ -17,29 +17,26 @@ def index():
 def get_latest():
     try:
         with open('results/latest.json') as f:
-            data = json.load(f)
+            all_results = json.load(f)
         
-        # 动态应用当前的 IP 映射配置
         config = load_config()
         vps_mappings = config.get('vps_mappings', {})
         
-        print(f"[DEBUG] 当前IP映射配置: {vps_mappings}")
-        
-        for item in data:
+        # 只显示在配置中存在的VPS
+        filtered_data = []
+        for item in all_results:
             client_ip = item.get('ip', '')
-            original_name = item.get('original_name', item.get('name', 'Unknown'))
-            
-            print(f"[DEBUG] VPS数据 - IP: {client_ip}, 原始名称: {original_name}, 当前名称: {item.get('name')}")
-            
-            # 根据当前配置动态设置名称
-            if client_ip and client_ip in vps_mappings:
+            if client_ip in vps_mappings:
+                # 更新名称
                 item['name'] = vps_mappings[client_ip]
-                print(f"[DEBUG] 应用映射: {client_ip} -> {vps_mappings[client_ip]}")
-            else:
-                item['name'] = original_name
-                print(f"[DEBUG] 使用原始名称: {original_name}")
+                
+                # 确保 original_name 字段存在
+                if 'original_name' not in item:
+                    item['original_name'] = item.get('name', 'Unknown')
+                
+                filtered_data.append(item)
         
-        return jsonify(data)
+        return jsonify(filtered_data)
     except Exception as e:
         print(f"[ERROR] 获取数据失败: {e}")
         return jsonify([])
@@ -61,23 +58,7 @@ def update_config():
         with open('config.json', 'w', encoding='utf-8') as f:
             json.dump(config, f, indent=2, ensure_ascii=False)
         
-        # 更新现有数据中的VPS名称
-        results_file = Path('results/latest.json')
-        if results_file.exists():
-            with open(results_file, 'r', encoding='utf-8') as f:
-                all_results = json.load(f)
-            
-            # 根据新的IP映射更新每个VPS的名称
-            for result in all_results:
-                client_ip = result.get('ip', '')
-                original_name = result.get('original_name', result.get('name', 'Unknown'))
-                new_name = new_mappings.get(client_ip, original_name)
-                result['name'] = new_name
-            
-            # 保存更新后的数据
-            with open(results_file, 'w', encoding='utf-8') as f:
-                json.dump(all_results, f, indent=2, ensure_ascii=False)
-        
+        print(f"✓ 配置已更新: {new_mappings}")
         return jsonify({'status': 'success'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
