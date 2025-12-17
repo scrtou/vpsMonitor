@@ -10,8 +10,20 @@
 - 📊 美观的Web可视化界面
 - 📝 历史数据记录
 - 🚀 轻量级架构，VPS端零依赖
+- ✨ 现代化UI界面，支持状态图标
+ 
+## 界面图例
 
-## 架构说明
+Web界面使用以下SVG图标来表示不同的解锁状态：
+
+| 图标 | 状态 | 描述 |
+| :---: | :--- | :--- |
+| <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7" /></svg> | **解锁 (Unlocked)** | 服务访问正常。 |
+| <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18L18 6M6 6l12 12" /></svg> | **锁定 (Locked)** | 服务被限制或无法访问。 |
+| <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg> | **错误 (Error)** | 检测过程中发生错误。 |
+| <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg> | **未知 (Unknown)** | 未获取到状态信息。 |
+ 
+ ## 架构说明
 
 本系统采用**中心服务器 + VPS上报**的架构：
 
