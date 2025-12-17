@@ -17,7 +17,19 @@ def index():
 def get_latest():
     try:
         with open('results/latest.json') as f:
-            return jsonify(json.load(f))
+            data = json.load(f)
+        
+        # 动态应用当前的 IP 映射配置
+        config = load_config()
+        vps_mappings = config.get('vps_mappings', {})
+        
+        for item in data:
+            client_ip = item.get('ip', '')
+            original_name = item.get('original_name', item.get('name', 'Unknown'))
+            # 根据当前配置动态设置名称
+            item['name'] = vps_mappings.get(client_ip, original_name)
+        
+        return jsonify(data)
     except:
         return jsonify([])
 
