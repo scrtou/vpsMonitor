@@ -21,12 +21,48 @@ def get_latest():
     except:
         return jsonify([])
 
+@app.route('/api/config', methods=['GET'])
+def get_config():
+    """获取配置"""
+    config = load_config()
+    return jsonify({'vps_mappings': config.get('vps_mappings', {})})
+
+@app.route('/api/config', methods=['POST'])
+def update_config():
+    """更新配置"""
+    try:
+        new_mappings = request.get_json()
+        config = load_config()
+        config['vps_mappings'] = new_mappings
+        
+        with open('config.json', 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 @app.route('/api/report', methods=['POST'])
 def report():
     """接收VPS上报的检测数据"""
     try:
         data = request.get_json()
-        vps_name = data.get('name', 'Unknown')
+        original_name = data.get('name', 'Unknown')
+        
+        # 获取上报者的IP地址
+        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        if ',' in client_ip:
+            client_ip = client_ip.split(',')[0].strip()
+        
+        # 根据IP映射查找自定义名称
+        config = load_config()
+        vps_mappings = config.get('vps_mappings', {})
+        vps_name = vps_mappings.get(client_ip, original_name)
+        
+        # 更新数据中的名称
+        data['name'] = vps_name
+        data['original_name'] = original_name
+        data['ip'] = client_ip
         
         # 读取现有数据
         results_file = Path('results/latest.json')
@@ -39,7 +75,7 @@ def report():
         # 更新或添加该VPS的数据
         updated = False
         for i, result in enumerate(all_results):
-            if result['name'] == vps_name:
+            if result.get('ip') == client_ip or result['name'] == vps_name:
                 all_results[i] = data
                 updated = True
                 break
@@ -58,7 +94,7 @@ def report():
         with open(history_file, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
         
-        print(f"✓ 收到 {vps_name} 的数据上报")
+        print(f"✓ 收到 {vps_name} ({client_ip}) 的数据上报")
         return jsonify({'status': 'success'})
     except Exception as e:
         print(f"✗ 处理上报数据失败: {e}")

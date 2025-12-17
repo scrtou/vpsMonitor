@@ -56,81 +56,95 @@
             font-family: 'JetBrains Mono', monospace;
         }
         
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 2rem;
-            border: 1px solid rgba(0, 217, 255, 0.1);
-            transition: all 0.3s ease;
+        .table-section {
+            margin-bottom: 3rem;
             animation: fadeInUp 0.6s ease;
-            animation-fill-mode: both;
         }
         
-        .card:hover {
-            transform: translateY(-4px);
-            border-color: var(--accent);
-            box-shadow: 0 8px 32px var(--accent-glow);
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid rgba(0, 217, 255, 0.2);
-        }
-        
-        .vps-name {
+        .table-title {
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--accent);
-        }
-        
-        .timestamp {
-            font-size: 0.85rem;
-            color: var(--text-dim);
-            font-family: 'JetBrains Mono', monospace;
-        }
-        
-        .section {
             margin-bottom: 1.5rem;
-        }
-        
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         
-        .service-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            transition: all 0.2s ease;
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 217, 255, 0.1);
         }
         
-        .service-item:hover {
-            background: rgba(0, 217, 255, 0.05);
+        .vps-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+        }
+        
+        .vps-table th,
+        .vps-table td {
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(0, 217, 255, 0.1);
+        }
+        
+        .vps-table thead th {
+            background: var(--bg-secondary);
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .service-col {
+            text-align: left;
+            min-width: 250px;
+            font-weight: 600;
+            background: var(--bg-secondary);
+            position: sticky;
+            left: 0;
+            z-index: 11;
+        }
+        
+        .vps-col {
+            min-width: 150px;
+        }
+        
+        .vps-header {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .vps-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .vps-time {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
         }
         
         .service-name {
             font-weight: 500;
-            text-transform: capitalize;
+            text-align: left;
+            padding-left: 1rem;
+        }
+        
+        .status-cell {
+            background: var(--bg-card);
+        }
+        
+        .vps-table tbody tr:hover {
+            background: rgba(0, 217, 255, 0.05);
+        }
+        
+        .vps-table tbody tr:hover .service-name {
+            background: rgba(0, 217, 255, 0.05);
         }
         
         .status-badge {
@@ -167,10 +181,9 @@
             border: 1px solid rgba(136, 146, 176, 0.3);
         }
         
-        .refresh-btn {
+        .refresh-btn, .config-btn {
             position: fixed;
             bottom: 2rem;
-            right: 2rem;
             background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
             color: var(--bg-primary);
             border: none;
@@ -184,10 +197,81 @@
             z-index: 100;
         }
         
-        .refresh-btn:hover {
+        .refresh-btn { right: 2rem; }
+        .config-btn { right: 12rem; }
+        
+        .refresh-btn:hover, .config-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 6px 30px var(--accent-glow);
         }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 39, 0.95);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid var(--accent);
+        }
+        
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+        
+        .mapping-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .mapping-item input {
+            flex: 1;
+            background: var(--bg-secondary);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .mapping-item input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .btn {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover { opacity: 0.8; }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text); }
         
         .loading {
             text-align: center;
@@ -224,7 +308,20 @@
         </div>
     </div>
     
+    <button class="config-btn" onclick="openConfig()">⚙️ 配置</button>
     <button class="refresh-btn" onclick="loadData()">🔄 刷新数据</button>
+    
+    <div id="configModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">VPS IP 映射配置</div>
+            <div id="mappingsList"></div>
+            <div style="margin-top: 1rem;">
+                <button class="btn" onclick="addMapping()">+ 添加映射</button>
+                <button class="btn" onclick="saveConfig()">保存</button>
+                <button class="btn btn-secondary" onclick="closeConfig()">取消</button>
+            </div>
+        </div>
+    </div>
     
     <script>
         async function loadData() {
@@ -243,7 +340,7 @@
                 return;
             }
             
-            // 收集所有服务名称并排序
+            // 收集所有服务名称并分类
             const allServices = new Set();
             data.forEach(vps => {
                 Object.keys(vps.services || {}).forEach(service => allServices.add(service));
@@ -260,50 +357,131 @@
             const ipv4Services = sortedServices.filter(s => s.includes('(IPv4)'));
             const ipv6Services = sortedServices.filter(s => s.includes('(IPv6)'));
             
-            const html = data.map(vps => {
-                const vpsServices = vps.services || {};
+            // 生成表格
+            const renderTable = (services, title) => {
+                if (services.length === 0) return '';
                 
                 return `
-                <div class="card">
-                    <div class="card-header">
-                        <div class="vps-name">${vps.name}</div>
-                        <div class="timestamp">${new Date(vps.timestamp).toLocaleString('zh-CN')}</div>
+                    <div class="table-section">
+                        <h2 class="table-title">${title}</h2>
+                        <div class="table-wrapper">
+                            <table class="vps-table">
+                                <thead>
+                                    <tr>
+                                        <th class="service-col">服务</th>
+                                        ${data.map(vps => `
+                                            <th class="vps-col">
+                                                <div class="vps-header">
+                                                    <div class="vps-name">${vps.name}</div>
+                                                    <div class="vps-time">${new Date(vps.timestamp).toLocaleString('zh-CN', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'})}</div>
+                                                </div>
+                                            </th>
+                                        `).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${services.map(service => `
+                                        <tr>
+                                            <td class="service-name">${service.replace(' (IPv4)', '').replace(' (IPv6)', '')}</td>
+                                            ${data.map(vps => {
+                                                const info = (vps.services || {})[service];
+                                                return `
+                                                    <td class="status-cell">
+                                                        ${info ? `<span class="status-badge status-${info.status}">${info.status}</span>` : '<span class="status-badge status-unknown">-</span>'}
+                                                    </td>
+                                                `;
+                                            }).join('')}
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    
-                    ${ipv4Services.length > 0 ? `
-                    <div class="section">
-                        <div class="section-title">📡 IPv4 检测结果</div>
-                        ${ipv4Services.map(service => {
-                            const info = vpsServices[service];
-                            return `
-                            <div class="service-item">
-                                <span class="service-name">${service}</span>
-                                ${info ? `<span class="status-badge status-${info.status}">${info.status}</span>` : '<span class="status-badge status-unknown">-</span>'}
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-                    ` : ''}
-                    
-                    ${ipv6Services.length > 0 ? `
-                    <div class="section">
-                        <div class="section-title">📡 IPv6 检测结果</div>
-                        ${ipv6Services.map(service => {
-                            const info = vpsServices[service];
-                            return `
-                            <div class="service-item">
-                                <span class="service-name">${service}</span>
-                                ${info ? `<span class="status-badge status-${info.status}">${info.status}</span>` : '<span class="status-badge status-unknown">-</span>'}
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-                    ` : ''}
-                </div>
                 `;
-            }).join('');
+            };
             
+            const html = renderTable(ipv4Services, '📡 IPv4 检测结果') + renderTable(ipv6Services, '📡 IPv6 检测结果');
             document.getElementById('content').innerHTML = html;
+        }
+        
+        let currentMappings = {};
+        
+        async function openConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const data = await response.json();
+                currentMappings = data.vps_mappings || {};
+                renderMappings();
+                document.getElementById('configModal').classList.add('active');
+            } catch (error) {
+                alert('加载配置失败');
+            }
+        }
+        
+        function closeConfig() {
+            document.getElementById('configModal').classList.remove('active');
+        }
+        
+        function renderMappings() {
+            const html = Object.entries(currentMappings).map(([ip, name]) => `
+                <div class="mapping-item">
+                    <input type="text" value="${ip}" placeholder="VPS IP 地址" data-type="ip" data-old-ip="${ip}">
+                    <input type="text" value="${name}" placeholder="VPS 名称" data-type="name">
+                    <button class="btn btn-secondary" onclick="removeMapping('${ip}')">删除</button>
+                </div>
+            `).join('');
+            document.getElementById('mappingsList').innerHTML = html;
+        }
+        
+        function addMapping() {
+            const container = document.getElementById('mappingsList');
+            const div = document.createElement('div');
+            div.className = 'mapping-item';
+            div.innerHTML = `
+                <input type="text" placeholder="VPS IP 地址" data-type="ip">
+                <input type="text" placeholder="VPS 名称" data-type="name">
+                <button class="btn btn-secondary" onclick="this.parentElement.remove()">删除</button>
+            `;
+            container.appendChild(div);
+        }
+        
+        function removeMapping(ip) {
+            delete currentMappings[ip];
+            renderMappings();
+        }
+        
+        async function saveConfig() {
+            const items = document.querySelectorAll('.mapping-item');
+            const newMappings = {};
+            
+            items.forEach(item => {
+                const ipInput = item.querySelector('[data-type="ip"]');
+                const nameInput = item.querySelector('[data-type="name"]');
+                const ip = ipInput.value.trim();
+                const name = nameInput.value.trim();
+                
+                if (ip && name) {
+                    newMappings[ip] = name;
+                }
+            });
+            
+            try {
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newMappings)
+                });
+                
+                if (response.ok) {
+                    alert('配置保存成功');
+                    closeConfig();
+                    loadData();
+                } else {
+                    alert('配置保存失败');
+                }
+            } catch (error) {
+                alert('配置保存失败: ' + error);
+            }
         }
         
         // 初始加载
