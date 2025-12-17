@@ -38,6 +38,23 @@ def update_config():
         with open('config.json', 'w', encoding='utf-8') as f:
             json.dump(config, f, indent=2, ensure_ascii=False)
         
+        # 更新现有数据中的VPS名称
+        results_file = Path('results/latest.json')
+        if results_file.exists():
+            with open(results_file, 'r', encoding='utf-8') as f:
+                all_results = json.load(f)
+            
+            # 根据新的IP映射更新每个VPS的名称
+            for result in all_results:
+                client_ip = result.get('ip', '')
+                original_name = result.get('original_name', result.get('name', 'Unknown'))
+                new_name = new_mappings.get(client_ip, original_name)
+                result['name'] = new_name
+            
+            # 保存更新后的数据
+            with open(results_file, 'w', encoding='utf-8') as f:
+                json.dump(all_results, f, indent=2, ensure_ascii=False)
+        
         return jsonify({'status': 'success'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
