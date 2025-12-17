@@ -9,21 +9,21 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         :root {
-            --bg-primary: #0a0e27;
-            --bg-secondary: #151b3d;
-            --bg-card: #1a2142;
-            --accent: #00d9ff;
-            --accent-glow: rgba(0, 217, 255, 0.3);
-            --success: #00ff88;
-            --error: #ff3366;
-            --warning: #ffaa00;
-            --text: #e8eaf6;
-            --text-dim: #8892b0;
+            --bg-primary: #f5f7fa;
+            --bg-secondary: #e8ecf1;
+            --bg-card: #ffffff;
+            --accent: #1890ff;
+            --accent-glow: rgba(24, 144, 255, 0.15);
+            --success: #52c41a;
+            --error: #ff4d4f;
+            --warning: #faad14;
+            --text: #262626;
+            --text-dim: #8c8c8c;
         }
         
         body {
             font-family: 'Noto Sans SC', sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, #1a1f3a 100%);
+            background: var(--bg-primary);
             color: var(--text);
             min-height: 100vh;
             padding: 2rem;
@@ -43,11 +43,8 @@
         h1 {
             font-size: 3rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--accent);
             margin-bottom: 0.5rem;
-            text-shadow: 0 0 40px var(--accent-glow);
         }
         
         .subtitle {
@@ -72,8 +69,9 @@
         
         .table-wrapper {
             overflow-x: auto;
-            border-radius: 16px;
-            border: 1px solid rgba(0, 217, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid #e8e8e8;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
         
         .vps-table {
@@ -84,9 +82,9 @@
         
         .vps-table th,
         .vps-table td {
-            padding: 1rem;
+            padding: 0.75rem;
             text-align: center;
-            border: 1px solid rgba(0, 217, 255, 0.1);
+            border: 1px solid #f0f0f0;
         }
         
         .vps-table thead th {
@@ -99,7 +97,7 @@
         
         .service-col {
             text-align: left;
-            min-width: 250px;
+            min-width: 180px;
             font-weight: 600;
             background: var(--bg-secondary);
             position: sticky;
@@ -140,11 +138,11 @@
         }
         
         .vps-table tbody tr:hover {
-            background: rgba(0, 217, 255, 0.05);
+            background: #fafafa;
         }
         
         .vps-table tbody tr:hover .service-name {
-            background: rgba(0, 217, 255, 0.05);
+            background: #fafafa;
         }
         
         .status-badge {
@@ -158,41 +156,41 @@
         }
         
         .status-unlocked {
-            background: rgba(0, 255, 136, 0.2);
+            background: #f6ffed;
             color: var(--success);
-            border: 1px solid var(--success);
+            border: 1px solid #b7eb8f;
         }
         
         .status-locked {
-            background: rgba(255, 51, 102, 0.2);
+            background: #fff1f0;
             color: var(--error);
-            border: 1px solid var(--error);
+            border: 1px solid #ffccc7;
         }
         
         .status-error {
-            background: rgba(255, 170, 0, 0.2);
+            background: #fffbe6;
             color: var(--warning);
-            border: 1px solid var(--warning);
+            border: 1px solid #ffe58f;
         }
         
         .status-unknown {
-            background: rgba(136, 146, 176, 0.1);
+            background: #fafafa;
             color: var(--text-dim);
-            border: 1px solid rgba(136, 146, 176, 0.3);
+            border: 1px solid #d9d9d9;
         }
         
         .refresh-btn, .config-btn {
             position: fixed;
             bottom: 2rem;
-            background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
-            color: var(--bg-primary);
+            background: var(--accent);
+            color: #ffffff;
             border: none;
             padding: 1rem 2rem;
-            border-radius: 50px;
+            border-radius: 8px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 4px 20px var(--accent-glow);
+            box-shadow: 0 2px 8px var(--accent-glow);
             transition: all 0.3s ease;
             z-index: 100;
         }
@@ -212,7 +210,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 14, 39, 0.95);
+            background: rgba(0, 0, 0, 0.45);
             z-index: 200;
             align-items: center;
             justify-content: center;
@@ -222,13 +220,13 @@
         
         .modal-content {
             background: var(--bg-card);
-            border-radius: 16px;
+            border-radius: 8px;
             padding: 2rem;
             max-width: 600px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
-            border: 1px solid var(--accent);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
         }
         
         .modal-header {
@@ -246,9 +244,9 @@
         
         .mapping-item input {
             flex: 1;
-            background: var(--bg-secondary);
-            border: 1px solid rgba(0, 217, 255, 0.2);
-            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
             padding: 0.75rem;
             color: var(--text);
             font-family: 'JetBrains Mono', monospace;
@@ -257,21 +255,22 @@
         .mapping-item input:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-glow);
         }
         
         .btn {
             background: var(--accent);
-            color: var(--bg-primary);
+            color: #ffffff;
             border: none;
             padding: 0.75rem 1.5rem;
-            border-radius: 8px;
+            border-radius: 4px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
         }
         
-        .btn:hover { opacity: 0.8; }
-        .btn-secondary { background: var(--bg-secondary); color: var(--text); }
+        .btn:hover { opacity: 0.85; }
+        .btn-secondary { background: #ffffff; color: var(--text); border: 1px solid #d9d9d9; }
         
         .loading {
             text-align: center;
