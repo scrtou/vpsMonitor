@@ -71,9 +71,13 @@ def report():
         original_name = data.get('name', 'Unknown')
         
         # 获取上报者的IP地址
-        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-        if ',' in client_ip:
-            client_ip = client_ip.split(',')[0].strip()
+        xff = request.headers.get("X-Forwarded-For", "")
+        client_ip = (
+            request.headers.get("CF-Connecting-IP")
+            or request.headers.get("X-Real-IP")
+            or (xff.split(",")[0].strip() if xff else "")
+            or request.remote_addr
+        )
         
         # 根据IP映射查找自定义名称
         config = load_config()
